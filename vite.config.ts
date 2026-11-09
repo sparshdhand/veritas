@@ -11,6 +11,14 @@ export default defineConfig(() => {
         '@': path.resolve(__dirname, '.'),
       },
     },
+    build: {
+      rollupOptions: {
+        input: {
+          main: path.resolve(__dirname, 'index.html'),
+          intro: path.resolve(__dirname, 'intro.html'),
+        },
+      },
+    },
     server: {
       allowedHosts: true as const,
       // HMR is disabled in AI Studio via DISABLE_HMR env var.

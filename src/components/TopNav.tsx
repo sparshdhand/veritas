@@ -18,6 +18,7 @@ interface TopNavProps {
   onTriggerUpload: () => void;
   onReset: () => void;
   onOpenDossier: () => void;
+  onReplayIntro?: () => void;
 }
 
 export const TopNav: React.FC<TopNavProps> = ({
@@ -28,6 +29,7 @@ export const TopNav: React.FC<TopNavProps> = ({
   onTriggerUpload,
   onReset,
   onOpenDossier,
+  onReplayIntro,
 }) => {
   return (
     <header className="sticky top-0 z-40 w-full px-4 sm:px-6 lg:px-8 py-3 bg-transparent flex justify-center">
@@ -69,6 +71,18 @@ export const TopNav: React.FC<TopNavProps> = ({
                 <RotateCcw className="w-3.5 h-3.5" />
               </button>
             </>
+          )}
+
+          {onReplayIntro && (
+            <button
+              type="button"
+              onClick={onReplayIntro}
+              title="Replay Veritas Tour & Architecture Showcase"
+              className="hidden sm:inline-flex items-center gap-1.5 px-3 py-2 rounded-xl text-xs font-semibold text-[#645D56] hover:text-[#1C1917] hover:bg-[#EBE5DA] transition-all cursor-pointer"
+            >
+              <Sparkles className="w-3.5 h-3.5 text-amber-500" />
+              <span>Tour</span>
+            </button>
           )}
 
           <button

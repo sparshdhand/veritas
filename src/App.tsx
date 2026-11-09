@@ -8,12 +8,14 @@ import { TopNav } from "./components/TopNav";
 import { WorkspaceView } from "./components/WorkspaceView";
 import { HearingDossierModal } from "./components/HearingDossierModal";
 import { GlobalDropOverlay } from "./components/GlobalDropOverlay";
+import { FirstLaunchIntro } from "./components/FirstLaunchIntro";
 import { ForensicSubmissionCase } from "./types/forensics";
 import {
   enrichSubmissionWithLiveNeuralClassifier,
   evaluateFileSubmission,
   evaluateTextSubmission,
 } from "./utils/submissionEvaluator";
+import { isDesktopApp, revealMainWindow } from "./utils/tauriBridge";
 
 const SAMPLE_ESSAY = `Recent developments in artificial intelligence have precipitated profound paradigm shifts across contemporary higher education. Large language models exhibit remarkable capabilities in synthesizing multi-disciplinary domain knowledge, structuring expository essays, and generating syntactically cohesive academic discourse. Consequently, post-secondary institutions are confronted with substantial methodological dilemmas regarding authentic assessment protocols, scholarly attribution, and academic integrity. Furthermore, it is essential to recognize that heuristic evaluation metrics must be calibrated against empirical human academic controls to prevent the disproportionate penalization of non-native English writers or technical derivations containing symbolic mathematical notation.`;
 
@@ -25,9 +27,36 @@ export default function App() {
   const [isAnalyzing, setIsAnalyzing] = useState(false);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const [isDossierOpen, setIsDossierOpen] = useState(false);
+  const [showIntro, setShowIntro] = useState<boolean>(() => {
+    // In native desktop app, the intro is handled by the dedicated native 'intro' window!
+    if (typeof window === "undefined" || isDesktopApp()) return false;
+    return localStorage.getItem("veritas_intro_seen") !== "true";
+  });
+
+  const handleCompleteIntro = () => {
+    setShowIntro(false);
+    try {
+      localStorage.setItem("veritas_intro_seen", "true");
+    } catch {
+      // ignore
+    }
+    // In native Tauri desktop, reveal and bring the main workbench window forward
+    void revealMainWindow();
+  };
+
+  const handleReplayIntro = () => {
+    setShowIntro(true);
+  };
 
   const fileInputRef = useRef<HTMLInputElement | null>(null);
   const dragCounterRef = useRef<number>(0);
+
+  // In browser mode (non-desktop), reveal immediately if intro not showing
+  useEffect(() => {
+    if (!isDesktopApp() && !showIntro) {
+      void revealMainWindow();
+    }
+  }, [showIntro]);
 
   const handleTriggerUpload = () => {
     fileInputRef.current?.click();
@@ -65,10 +94,20 @@ export default function App() {
 
   // Global window drag & drop event handling to allow swapping active documents anywhere
   useEffect(() => {
+    const isEventWithFiles = (e: DragEvent): boolean => {
+      if (!e.dataTransfer) return false;
+      const types = Array.from(e.dataTransfer.types || []);
+      if (types.length === 0) return true; // Some browsers do not populate types until drop
+      return types.some((t) => {
+        const lower = t.toLowerCase();
+        return lower === "files" || lower === "application/x-moz-file" || lower.includes("file");
+      });
+    };
+
     const handleWindowDragEnter = (e: DragEvent) => {
       e.preventDefault();
-      // Check if dragging files
-      if (e.dataTransfer && Array.from(e.dataTransfer.types).includes("Files")) {
+      e.stopPropagation();
+      if (isEventWithFiles(e)) {
         dragCounterRef.current += 1;
         setIsDragging(true);
       }
@@ -76,13 +115,18 @@ export default function App() {
 
     const handleWindowDragOver = (e: DragEvent) => {
       e.preventDefault();
+      e.stopPropagation();
       if (e.dataTransfer) {
         e.dataTransfer.dropEffect = "copy";
+      }
+      if (!isDragging && isEventWithFiles(e)) {
+        setIsDragging(true);
       }
     };
 
     const handleWindowDragLeave = (e: DragEvent) => {
       e.preventDefault();
+      e.stopPropagation();
       dragCounterRef.current = Math.max(0, dragCounterRef.current - 1);
       if (dragCounterRef.current === 0) {
         setIsDragging(false);
@@ -91,6 +135,7 @@ export default function App() {
 
     const handleWindowDrop = async (e: DragEvent) => {
       e.preventDefault();
+      e.stopPropagation();
       dragCounterRef.current = 0;
       setIsDragging(false);
 
@@ -111,7 +156,7 @@ export default function App() {
       window.removeEventListener("dragleave", handleWindowDragLeave);
       window.removeEventListener("drop", handleWindowDrop);
     };
-  }, [handleProcessFile]);
+  }, [handleProcessFile, isDragging]);
 
   const handleDropFile = async (e: React.DragEvent<HTMLDivElement>) => {
     e.preventDefault();
@@ -180,18 +225,33 @@ export default function App() {
       />
 
       {/* Unified Persistent 16:9 Studio Header */}
-      <TopNav
-        hasActiveSubmission={activeSubmission !== null}
-        isPreviewActive={isPreviewActive}
-        detectedSpanCount={activeSubmission?.report.highlighted_spans.length ?? 0}
-        onTogglePreview={handleTogglePreview}
-        onTriggerUpload={handleTriggerUpload}
-        onReset={handleReset}
-        onOpenDossier={() => setIsDossierOpen(true)}
-      />
+      <div
+        className={`transition-all duration-700 ease-out ${
+          showIntro
+            ? "filter blur-[12px] brightness-90 saturate-150 pointer-events-none select-none"
+            : "filter blur-0 brightness-100 saturate-100"
+        }`}
+      >
+        <TopNav
+          hasActiveSubmission={activeSubmission !== null}
+          isPreviewActive={isPreviewActive}
+          detectedSpanCount={activeSubmission?.report.highlighted_spans.length ?? 0}
+          onTogglePreview={handleTogglePreview}
+          onTriggerUpload={handleTriggerUpload}
+          onReset={handleReset}
+          onOpenDossier={() => setIsDossierOpen(true)}
+          onReplayIntro={handleReplayIntro}
+        />
+      </div>
 
       {/* Unified 16:9 Operable Studio Workbench */}
-      <main className="flex-1 w-full min-h-0 flex flex-col overflow-hidden">
+      <main
+        className={`flex-1 w-full min-h-0 flex flex-col overflow-hidden transition-all duration-700 ease-out ${
+          showIntro
+            ? "filter blur-[18px] brightness-90 saturate-150 scale-[0.98] pointer-events-none select-none"
+            : "filter blur-0 brightness-100 saturate-100 scale-100"
+        }`}
+      >
         <WorkspaceView
           submission={activeSubmission}
           isPreviewActive={isPreviewActive}
@@ -207,6 +267,12 @@ export default function App() {
           onLoadSampleSubmission={handleLoadSample}
         />
       </main>
+
+      {/* Dia-Style First Launch Cinematic Intro & Showcase */}
+      <FirstLaunchIntro
+        isOpen={showIntro}
+        onComplete={handleCompleteIntro}
+      />
 
       {/* Institutional Hearing Dossier Modal */}
       {activeSubmission && (

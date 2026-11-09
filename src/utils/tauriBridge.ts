@@ -67,3 +67,13 @@ export async function getAppVersion(): Promise<string> {
 export async function getDesktopModelStatus(): Promise<DesktopModelStatus | null> {
   return invokeDesktopCommand<DesktopModelStatus>("get_model_status");
 }
+
+/**
+ * Signals native Tauri desktop to reveal and focus the main workbench window.
+ */
+export async function revealMainWindow(): Promise<void> {
+  if (isDesktopApp()) {
+    await invokeDesktopCommand("show_main_window");
+  }
+}
+

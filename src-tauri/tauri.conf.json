@@ -12,6 +12,7 @@
   "app": {
     "windows": [
       {
+        "label": "main",
         "title": "Veritas // Academic Integrity Workbench",
         "width": 1440,
         "height": 900,
@@ -19,7 +20,23 @@
         "minHeight": 700,
         "resizable": true,
         "fullscreen": false,
-        "backgroundColor": "#090d16"
+        "backgroundColor": "#090d16",
+        "dragDropEnabled": false,
+        "visible": false
+      },
+      {
+        "label": "intro",
+        "title": "Welcome to Veritas",
+        "url": "/intro.html",
+        "width": 780,
+        "height": 580,
+        "resizable": false,
+        "decorations": false,
+        "transparent": true,
+        "shadow": false,
+        "alwaysOnTop": true,
+        "center": true,
+        "visible": true
       }
     ],
     "security": {
@@ -36,6 +53,13 @@
       "icons/icon.icns",
       "icons/icon.ico"
     ],
+    "windows": {
+      "nsis": {
+        "installerIcon": "icons/icon.ico",
+        "headerImage": "icons/Square150x150Logo.png"
+      },
+      "wix": {}
+    },
     "resources": [
       "resources/models/*"
     ]
