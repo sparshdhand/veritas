@@ -1,7 +1,7 @@
 [package]
 name = "veritas-forensic"
-version = "1.0.0"
-description = "Veritas Forensic - Academic Integrity & AI Detection Workbench"
+version = "1.2.0"
+description = "Veritas Forensic - Academic Integrity & AI Detection Workbench (v1.2.0 Major Internal Overhaul)"
 authors = ["Veritas Forensic Team"]
 edition = "2021"
 

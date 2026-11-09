@@ -11,6 +11,7 @@ import {
   computeSlidingWindowGaussianCurve,
   computeStylometricMetrics,
   computeSyntacticFeatureClassifierScore,
+  detectAcademicPeerReviewProtection,
   detectESLSyntacticPatterns,
   detectLatexAndMathProtection,
   detectTextbookAndFormalReferenceProtection,
@@ -260,8 +261,11 @@ function buildSynchronizedSpans(
 
 /**
  * Synchronizes the final aggregate score with the log-odds fusion engine and word-weighted
- * neural span coverage while strictly enforcing the Page 17 Hard-Veto & Override Rules:
- * - Metadata-Absent Downgrade: Caps unverified plain text / flattened PDFs at Tier 2 (~88% - 93%).
+ * neural span coverage while strictly enforcing the Hard-Veto & Override Rules:
+ * - LaTeX / Math Guard: Caps at 0.12 (Tier 0).
+ * - Academic Research Guard: Caps at 0.32 (Tier 0).
+ * - ESL Demographic Protection: Caps at 0.58 (Tier 1).
+ * - Metadata-Absent Downgrade: Caps plain text / PDFs lacking container session logs at Tier 2 (0.91 max).
  */
 function synchronizeAggregateScore(
   fusionScore: number,
@@ -270,6 +274,7 @@ function synchronizeAggregateScore(
   activeVetoes: {
     minimumLengthVeto: boolean;
     eslProtectionVeto: boolean;
+    academicProtectionVeto?: boolean;
     metadataAbsentDowngrade: boolean;
   }
 ): {
@@ -281,15 +286,17 @@ function synchronizeAggregateScore(
 
   if (latexDominantVeto) {
     score = Math.min(score, 0.12);
+  } else if (activeVetoes.academicProtectionVeto) {
+    score = Math.min(score, 0.32);
   } else if (
     !activeVetoes.minimumLengthVeto &&
     !activeVetoes.eslProtectionVeto
   ) {
     score = fusionScore * 0.7 + weightedPassageSignal * 0.3;
     if (activeVetoes.metadataAbsentDowngrade) {
-      // Under the Metadata-Absent Downgrade rule (Page 17), pure text/PDF without
-      // container session tracking caps in Tier 2 around 88% - 93%.
-      score = Math.min(0.93, Math.max(0.88, score));
+      // Under the Metadata-Absent Downgrade rule, pure text/PDF without container tracking
+      // cannot exceed Tier 2 (0.91 cap). No artificial lower clamp is applied.
+      score = Math.min(0.91, score);
     }
   }
 
@@ -333,6 +340,9 @@ export function evaluateTextSubmission(
   const formalRefCheck = detectTextbookAndFormalReferenceProtection(
     sanitization.sanitizedText
   );
+  const academicCheck = detectAcademicPeerReviewProtection(
+    sanitization.sanitizedText
+  );
   const latexCheck = detectLatexAndMathProtection(sanitization.sanitizedText);
 
   const { passages, weightedNeuralSignal, prosePassageWordCount } =
@@ -343,10 +353,13 @@ export function evaluateTextSubmission(
       gltr.top10
     );
 
-  // Only trigger formal textbook/legal veto if not a full-length AI research paper (>1200 words)
+  // Formal textbook/curriculum protection (no artificial word-count ceiling)
   const formalTextbookOrLegalVeto =
     formalRefCheck.formalReferenceProtected &&
-    stylometrics.wordCount < 1200 &&
+    !sanitization.evasionFlagTriggered;
+
+  const academicResearchVeto =
+    academicCheck.academicProtected &&
     !sanitization.evasionFlagTriggered;
 
   const latexDominantVeto =
@@ -383,7 +396,8 @@ export function evaluateTextSubmission(
     },
     {
       wordCount: stylometrics.wordCount,
-      eslPatternsDetected: eslCheck.eslProtected || formalTextbookOrLegalVeto,
+      eslPatternsDetected: eslCheck.eslProtected,
+      academicResearchProtected: academicResearchVeto,
       hasContainerSessionTracking: false,
       hasMetadataAnomaly: sanitization.evasionFlagTriggered,
       hasVerifiedC2PA: false,
@@ -423,7 +437,9 @@ export function evaluateTextSubmission(
     sanitization.evasionFlagTriggered
   );
 
-  const summary = formalTextbookOrLegalVeto
+  const summary = academicResearchVeto
+    ? "Academic Peer-Review Protection applied: verified scholarly citations and research apparatus detected, ensuring authentic academic writing is protected."
+    : formalTextbookOrLegalVeto
     ? "Official Textbook / Legal / Formal Reference Guard applied: standardized curriculum, legal, or committee-edited educational prose detected and protected from false-positive AI classification."
     : latexDominantVeto
     ? "LaTeX / Mathematical & Diagram Guard applied: document consists solely of symbolic equations and diagram labels."
@@ -435,7 +451,7 @@ export function evaluateTextSubmission(
     ? "Writing exhibits natural sentence variation, diverse vocabulary, and human-consistent cadence."
     : `Writing displays uniform sentence cadence and predictable token patterns (${
         fusion.activeVetoes.metadataAbsentDowngrade
-          ? "capped at Tier 2 — Likely Synthetic (88%–93%) under Metadata-Absent Downgrade because plain text lacks a container session log"
+          ? "capped at Tier 2 — Likely Synthetic under Metadata-Absent Downgrade because plain text lacks a container session log"
           : calibratedLabel
       }).`;
 
@@ -507,6 +523,12 @@ export async function evaluateFileSubmission(
       sanitization.sanitizedText,
       stylometrics.mattr
     );
+    const formalRefCheck = detectTextbookAndFormalReferenceProtection(
+      sanitization.sanitizedText
+    );
+    const academicCheck = detectAcademicPeerReviewProtection(
+      sanitization.sanitizedText
+    );
     const latexCheck = detectLatexAndMathProtection(
       sanitization.sanitizedText,
       parsed.authorToolSignature
@@ -520,8 +542,17 @@ export async function evaluateFileSubmission(
         gltr.top10
       );
 
+    const formalTextbookOrLegalVeto =
+      formalRefCheck.formalReferenceProtected &&
+      !sanitization.evasionFlagTriggered;
+
+    const academicResearchVeto =
+      academicCheck.academicProtected &&
+      !sanitization.evasionFlagTriggered;
+
     const latexDominantVeto =
-      latexCheck.latexMathProtected && prosePassageWordCount === 0;
+      (latexCheck.latexMathProtected && prosePassageWordCount === 0) ||
+      formalTextbookOrLegalVeto;
 
     const isNonWordExporter = parsed.rsidTestStatus === "NOT_APPLICABLE";
     const hasExternalPasteAdvisory = parsed.flags.some(
@@ -566,6 +597,7 @@ export async function evaluateFileSubmission(
       {
         wordCount: stylometrics.wordCount,
         eslPatternsDetected: eslCheck.eslProtected,
+        academicResearchProtected: academicResearchVeto,
         hasContainerSessionTracking:
           !isNonWordExporter &&
           !hasExternalPasteAdvisory &&
@@ -609,7 +641,11 @@ export async function evaluateFileSubmission(
       isNonWordExporter ? undefined : parsed.dominantRsid ?? undefined
     );
 
-    const summary = latexDominantVeto
+    const summary = academicResearchVeto
+      ? "Academic Peer-Review Protection applied: verified scholarly citations and research apparatus detected, ensuring authentic academic writing is protected."
+      : formalTextbookOrLegalVeto
+      ? "Official Textbook / Legal / Formal Reference Guard applied: standardized curriculum, legal, or committee-edited educational prose detected and protected from false-positive AI classification."
+      : latexDominantVeto
       ? "LaTeX / Mathematical & Diagram Guard applied: document consists solely of symbolic equations and diagram labels."
       : fusion.activeVetoes.minimumLengthVeto
       ? `Document contains ${stylometrics.wordCount} words (<150-word minimum threshold); automatically protected to prevent false positives on short excerpts.`
@@ -672,6 +708,12 @@ export async function evaluateFileSubmission(
       sanitization.sanitizedText,
       stylometrics.mattr
     );
+    const formalRefCheck = detectTextbookAndFormalReferenceProtection(
+      sanitization.sanitizedText
+    );
+    const academicCheck = detectAcademicPeerReviewProtection(
+      sanitization.sanitizedText
+    );
     const latexCheck = detectLatexAndMathProtection(
       sanitization.sanitizedText,
       parsedPdf.producerSignature,
@@ -686,9 +728,18 @@ export async function evaluateFileSubmission(
         gltr.top10
       );
 
-    // Only veto if the PDF has zero prose passages (i.e. pure diagram / formula sheet)
+    const formalTextbookOrLegalVeto =
+      formalRefCheck.formalReferenceProtected &&
+      !sanitization.evasionFlagTriggered;
+
+    const academicResearchVeto =
+      academicCheck.academicProtected &&
+      !sanitization.evasionFlagTriggered;
+
+    // Only veto if the PDF has zero prose passages (i.e. pure diagram / formula sheet) or formal reference
     const latexDominantVeto =
-      latexCheck.latexMathProtected && prosePassageWordCount === 0;
+      (latexCheck.latexMathProtected && prosePassageWordCount === 0) ||
+      formalTextbookOrLegalVeto;
 
     const burstSignal = Math.max(
       0.06,
@@ -724,6 +775,7 @@ export async function evaluateFileSubmission(
             ? Math.max(160, stylometrics.wordCount)
             : stylometrics.wordCount,
         eslPatternsDetected: eslCheck.eslProtected,
+        academicResearchProtected: academicResearchVeto,
         hasContainerSessionTracking: parsedPdf.anomalyDetected,
         hasMetadataAnomaly: parsedPdf.anomalyDetected,
         hasVerifiedC2PA: false,
@@ -773,13 +825,17 @@ export async function evaluateFileSubmission(
           conformal_p_value: synchronizedFusion.conformalPValue,
           allowable_fpr_ceiling: synchronizedFusion.allowableFprCeiling,
           disciplinary_action_eligible: fusion.disciplinaryActionEligible,
-          summary_justification: latexDominantVeto
+          summary_justification: academicResearchVeto
+            ? `Academic Peer-Review Protection applied: verified scholarly citations (${academicCheck.citationCount}) and research apparatus detected, ensuring authentic academic writing is protected.`
+            : formalTextbookOrLegalVeto
+            ? "Official Textbook / Legal / Formal Reference Guard applied: standardized curriculum, legal, or committee-edited educational prose detected and protected from false-positive AI classification."
+            : latexDominantVeto
             ? `LaTeX / Mathematical & Diagram Guard applied (${parsedPdf.producerSignature}): document contains only equations and diagram labels.`
             : fusion.activeVetoes.minimumLengthVeto
             ? `Extracted PDF text contains ${stylometrics.wordCount} words (<150-word minimum threshold); automatically protected to prevent false positives.`
             : parsedPdf.anomalyDetected
             ? `PDF stream metadata exposes programmatic generator '${parsedPdf.producerSignature}' with ${parsedPdf.xrefTableCount} XREF table(s).`
-            : `PDF container (${parsedPdf.producerSignature}) evaluated across ${parsedPdf.xrefTableCount} XREF save table(s) and extracted prose stream (capped at Tier 2 — Likely Synthetic under Metadata-Absent Downgrade).`,
+            : `PDF container (${parsedPdf.producerSignature}) evaluated across ${parsedPdf.xrefTableCount} XREF save table(s) and extracted prose stream.`,
         },
         document_metadata_forensics: {
           file_type: "pdf",
@@ -1142,7 +1198,9 @@ export async function enrichSubmissionWithLiveNeuralClassifier(
         wordCount: submission.stylometrics.wordCount,
         eslPatternsDetected:
           submission.fusion.activeVetoes.eslProtectionVeto ||
-          Boolean(data.eslOrFormalHumanProtection && submission.stylometrics.wordCount < 1200),
+          Boolean(data.eslOrFormalHumanProtection),
+        academicResearchProtected:
+          submission.fusion.activeVetoes.academicProtectionVeto,
         hasContainerSessionTracking:
           !submission.fusion.activeVetoes.metadataAbsentDowngrade &&
           submission.report.document_metadata_forensics.file_type === "docx",

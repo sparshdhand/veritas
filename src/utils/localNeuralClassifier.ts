@@ -21,8 +21,8 @@ let modelLoadFailed = false;
 
 /**
  * Initializes the bundled local offline ONNX classifier pipeline.
- * Loads the model directly from local assets (/models/roberta-detector/)
- * with zero remote network requests.
+ * Loads the model directly from local assets (/models/modernbert-detector/)
+ * with zero remote network requests, falling back to /models/roberta-detector if needed.
  */
 export async function getLocalOfflineNeuralClassifier(): Promise<TextClassifierPipeline | null> {
   if (modelLoadFailed) {
@@ -31,6 +31,23 @@ export async function getLocalOfflineNeuralClassifier(): Promise<TextClassifierP
 
   if (!offlineClassifierPromise) {
     offlineClassifierPromise = (async () => {
+      // 1. Prefer modern ModernBERT detector (8192 token window, trained on modern LLM RAID/MAGE data)
+      try {
+        const modernPath = "/models/modernbert-detector";
+        const classifier = await Promise.race([
+          pipeline("text-classification", modernPath, {
+            dtype: "q8",
+          }),
+          new Promise<never>((_, reject) =>
+            setTimeout(() => reject(new Error("ModernBERT load timeout")), 15000)
+          ),
+        ]);
+        return classifier as unknown as TextClassifierPipeline;
+      } catch (errModern) {
+        console.warn("[LocalNeuralClassifier] ModernBERT load failed, attempting fallback to RoBERTa:", errModern);
+      }
+
+      // 2. Fallback to RoBERTa detector
       try {
         const modelPath = "/models/roberta-detector";
         const classifier = await Promise.race([
@@ -54,7 +71,9 @@ export async function getLocalOfflineNeuralClassifier(): Promise<TextClassifierP
 }
 
 /**
- * Extracts AI probability score from RoBERTa classification output.
+ * Extracts AI probability score from classification output.
+ * Handles both ModernBERT (LABEL_1 = AI/Generated, LABEL_0 = Human/Real)
+ * and RoBERTa (Fake / Real labels).
  */
 export function extractAiProbability(
   output: TextClassificationOutput | TextClassificationOutput[]
@@ -67,10 +86,12 @@ export function extractAiProbability(
 
   for (const item of flat) {
     const lbl = item.label.toLowerCase();
-    if (lbl.includes("fake") || lbl.includes("ai") || lbl.includes("synthetic") || lbl === "label_0") {
+    // ModernBERT convention: LABEL_1 is AI/Generated, LABEL_0 is Human
+    // RoBERTa convention: "Fake" is AI, "Real" is Human
+    if (lbl === "label_1" || lbl.includes("fake") || lbl.includes("ai") || lbl.includes("synthetic")) {
       return Number(Math.max(0.01, Math.min(0.99, item.score)).toFixed(4));
     }
-    if (lbl.includes("real") || lbl.includes("human") || lbl === "label_1") {
+    if (lbl === "label_0" || lbl.includes("real") || lbl.includes("human")) {
       return Number(Math.max(0.01, Math.min(0.99, 1 - item.score)).toFixed(4));
     }
   }

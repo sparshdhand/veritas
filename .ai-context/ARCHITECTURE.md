@@ -2,8 +2,10 @@
 
 ## Tech Stack
 - **Frontend**: React 19, TypeScript, Tailwind CSS v4 (`@tailwindcss/vite`), Vite 8, Lucide React, Motion, KaTeX.
+- **Desktop Runtime**: Tauri v2 (`veritas-forensic`), supporting native macOS WKWebView and Microsoft Edge WebView2 on Windows 10/11 x86_64.
+- **Window Architecture**: Decoupled multi-window orchestration (hidden primary workbench + borderless transparent floating intro with dynamic primary monitor bounds and HazeOver backdrop dimming).
 - **Backend / Server Runtime**: Node.js (v24), Express 4, `tsx` runtime.
-- **Machine Learning & Inference**: `@huggingface/transformers` (ONNX Runtime CPU quantized sequence classification using `Xenova/roberta-base-openai-detector`).
+- **Machine Learning & Inference**: `@huggingface/transformers` (ONNX Runtime Web/WASM + CPU quantized sequence classification using `onnx-community/roberta-base-openai-detector-ONNX` embedded offline in `public/models/roberta-detector/`).
 - **Container Parsers**: JSZip (OpenXML DOCX disassembly), PDF.js (`pdfjs-dist`).
 - **Mathematical & Forensic Compute**: Custom in-place 2D Cooley-Tukey Radix-2 FFT, Lempel-Ziv LZ78 compression engine, Conformal Prediction calibration against empirical human quantiles.
 
@@ -31,9 +33,13 @@
        │
        └── Confidence Fusion Engine
            ├── Decorrelated Collinear Weights (w_bino, w_burst, w_gltr * 0.25)
-           ├── Hard Veto Overrides (ESL syntax, LaTeX/math protection, minimum length)
+           ├── Hard Veto Overrides (ESL syntax, LaTeX/math protection, minimum length, academic apparatus)
            └── 3 Defensible Institutional Tiers & Hearing Dossier Generation
 ```
+
+### Forensic Failure Modes & Protections
+- **Academic Apparatus Safeguard**: Protects authentic research structures (APA/IEEE citations, empirical methodology transcripts, table/data references) against statistical stylometric false positives.
+- **Fairness & Format Decoupling**: Eliminates word-count ceilings (<1200w) and artificial score floors (88-93% plain text clamp), ensuring long-form scholarship is not penalized for rigor.
 
 ## Schemas
 - `ForensicSubmissionCase`: Primary state model containing metadata, metrics, highlighted spans, and fusion report.

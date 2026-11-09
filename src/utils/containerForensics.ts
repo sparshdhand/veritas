@@ -323,8 +323,11 @@ export async function parsePdfContainer(buffer: ArrayBuffer): Promise<{
 
   // Attempt full multi-page PDF text extraction and visual page rendering via pdfjs-dist
   try {
-    const pdfjsLib = await import("pdfjs-dist");
-    if (pdfjsLib.GlobalWorkerOptions && !pdfjsLib.GlobalWorkerOptions.workerSrc) {
+    const pdfjsLib =
+      typeof window === "undefined"
+        ? await import("pdfjs-dist/legacy/build/pdf.mjs")
+        : await import("pdfjs-dist");
+    if (pdfjsLib.GlobalWorkerOptions && !pdfjsLib.GlobalWorkerOptions.workerSrc && typeof window !== "undefined") {
       pdfjsLib.GlobalWorkerOptions.workerSrc = new URL(
         "pdfjs-dist/build/pdf.worker.min.mjs",
         import.meta.url

@@ -157,6 +157,7 @@ export interface LogOddsSignalInput {
 export interface HardVetoContext {
   wordCount: number;
   eslPatternsDetected: boolean;
+  academicResearchProtected?: boolean;
   hasContainerSessionTracking: boolean;
   hasMetadataAnomaly: boolean;
   hasVerifiedC2PA: boolean;
@@ -176,6 +177,7 @@ export interface LogOddsFusionResult {
   activeVetoes: {
     minimumLengthVeto: boolean;
     eslProtectionVeto: boolean;
+    academicProtectionVeto?: boolean;
     metadataAbsentDowngrade: boolean;
   };
   signalContributions: Array<{

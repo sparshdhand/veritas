@@ -299,6 +299,85 @@ export function sanitizeAndTrapAdversarial(rawText: string): SanitizationResult 
 }
 
 /**
+ * Detects authentic academic peer-reviewed research structures, formal scholarly apparatus,
+ * in-text citations (APA, Harvard, IEEE, Chicago), qualitative data interview transcripts,
+ * and empirical methodology sections to prevent false positives on genuine academic scholarship.
+ */
+export function detectAcademicPeerReviewProtection(text: string): {
+  academicProtected: boolean;
+  citationCount: number;
+  apparatusCount: number;
+  detectedMarkers: string[];
+} {
+  const markers: string[] = [];
+
+  // 1. In-text scholarly citations:
+  // Handles parenthetical citations: e.g. "(Holec, 1981)", "(Byrne & Diem, 2014, p. 12)", "(Smith et al., 2020)"
+  // and narrative author-in-text citations: e.g. "Little (1991, p. 4)", "Holec (1981)", "Byrne & Diem (2014)"
+  // Must be author names, not arbitrary tech abbreviations or code tuples
+  const parentheticalCitations =
+    text.match(/\([A-Z][a-z]{2,}(?:\s+[A-Z][a-z]{2,})*(?:,\s*(?:19|20)\d{2}|(?:\s*(?:&|and|et\s+al\.?)\s*[A-Z][a-z]{2,})*,\s*(?:19|20)\d{2})(?:[,\s:]+p(?:p)?\.?\s*\d+)?\)/g) || [];
+
+  const narrativeCitations =
+    text.match(/\b[A-Z][a-z]{2,}(?:\s+[A-Z][a-z]{2,})*(?:\s*(?:&|and|et\s+al\.?)\s*[A-Z][a-z]{2,})*\s*\((?:19|20)\d{2}(?:[,\s:]+p(?:p)?\.?\s*\d+)?\)/g) || [];
+
+  // Authentic bracketed citation indices: strictly numbers like "[1]", "[2, 3]", "[12]"
+  // Excludes software array slices or matrix dimensions like "[0, 1]" or "[3, 2, 2]" by requiring sentence/prose context
+  const numericCitations = text.match(/(?<=\b[a-z]{3,}\s*)\[\d{1,3}(?:[,\s\-–]+\d{1,3})*\](?=[\s.,;])/g) || [];
+
+  const citationCount = parentheticalCitations.length + narrativeCitations.length + numericCitations.length;
+  if (citationCount >= 3) {
+    markers.push(`Authentic scholarly in-text citations (${citationCount} detected)`);
+  }
+
+  // 2. Qualitative research participant codes & verbatim transcripts:
+  // e.g., "S10:", "P3:", "Participant 4:", "Student 2 stated: ..."
+  const qualitativeInterviewMarkers =
+    text.match(/\b(?:S\d{1,2}|P\d{1,2}|Participant\s+\d{1,2}|Student\s+\d{1,2}|Respondent\s+\d{1,2}|Interviewee\s+\d{1,2})\s*:\s*["“]/g) || [];
+  if (qualitativeInterviewMarkers.length >= 2) {
+    markers.push(`Empirical qualitative interview transcripts (${qualitativeInterviewMarkers.length} participant tags)`);
+  }
+
+  // 3. Dedicated Bibliography / References Section (Standard requirement for authentic academic papers)
+  const hasReferencesSection = /(?:^|\n)\s*(?:References|Works\s+Cited|Bibliography)\s*(?:\n|$)/i.test(text);
+  if (hasReferencesSection) {
+    markers.push("Verified Bibliography / References Section");
+  }
+
+  // 4. Academic research apparatus headings & formal empirical sections:
+  const academicApparatusPatterns: Array<{ regex: RegExp; label: string }> = [
+    { regex: /\b(data\s+collection\s+and\s+analysis|semi-structured\s+interviews?|qualitative\s+and\s+quantitative)\b/i, label: "Empirical methodology apparatus" },
+    { regex: /\b(research\s+questions?|hypothes(?:is|es)|participants\s+in\s+the\s+study|study\s+explored)\b/i, label: "Formal scholarly study structure" },
+    { regex: /\b(Table\s+\d+[\.:]|Figure\s+\d+[\.:])\s+[A-Z]/i, label: "Academic table / figure caption" },
+    { regex: /\b(doi:\s*10\.\d{4,9}\/[-._;()/:A-Za-z0-9]+|https?:\/\/doi\.org\/10\.\d{4,9}\/)/i, label: "Direct scholarly DOI reference" },
+    { regex: /\b(EUROCALL|Elsevier|Springer|IEEE|Taylor\s*&\s*Francis|Wiley|Oxford\s+University\s+Press|Cambridge\s+University\s+Press)\b/i, label: "Peer-reviewed journal / academic publisher mark" },
+    { regex: /\b(statistically\s+significant|standard\s+deviation|Cronbach('s|\b)\s*alpha|p\s*<\s*0\.0[15]|df\s*=\s*\d+)\b/i, label: "Quantitative statistical apparatus" },
+  ];
+
+  let apparatusCount = 0;
+  for (const pat of academicApparatusPatterns) {
+    if (pat.regex.test(text)) {
+      apparatusCount++;
+      markers.push(pat.label);
+    }
+  }
+
+  // A document qualifies for Academic Peer-Review Protection ONLY if:
+  // 1. It contains authentic author citations AND a dedicated References/Bibliography section, OR
+  // 2. It contains empirical qualitative interview transcripts with participant codes AND academic methodology
+  const academicProtected =
+    (citationCount >= 3 && (hasReferencesSection || apparatusCount >= 2)) ||
+    (qualitativeInterviewMarkers.length >= 2 && apparatusCount >= 1);
+
+  return {
+    academicProtected,
+    citationCount,
+    apparatusCount,
+    detectedMarkers: markers,
+  };
+}
+
+/**
  * Detects official textbooks (e.g., NCERT, curriculum chapters), legal statutes/documents,
  * and committee-edited formal educational/ESL reference prose to prevent false positives.
  */
@@ -311,19 +390,13 @@ export function detectTextbookAndFormalReferenceProtection(text: string): {
   let category: "textbook" | "legal" | "esl_formal" | null = null;
 
   const textbookPatterns: Array<{ regex: RegExp; label: string }> = [
-    { regex: /\bNCERT\b|\bCBSE\b|\btextbooks?\b/i, label: "Official curriculum / NCERT textbook reference" },
-    { regex: /\bcommittees?\s+of\s+(human\s+)?(professors|experts|scholars|researchers)\b|\bsubject\s+matter\s+experts\b/i, label: "Editorial committee authorship marker" },
-    { regex: /\b(Activity|Exercise|Chapter|Fig(ure)?\.?)\s+\d+(\.\d+)?\b/i, label: "Pedagogical textbook apparatus marker" },
-    { regex: /\b(Let\s+us\s+(recall|observe|consider|understand|perform)|We\s+have\s+(learnt|seen|observed)|Do\s+you\s+know)\b/i, label: "Pedagogical instructional address" },
+    { regex: /\bNCERT\b|\bCBSE\b/i, label: "Official curriculum / NCERT textbook reference" },
+    { regex: /\bcommittees?\s+of\s+(human\s+)?(professors|experts|scholars|researchers)\b/i, label: "Editorial committee authorship marker" },
+    { regex: /\b(Activity|Exercise|Chapter)\s+\d+(\.\d+)?\b/i, label: "Pedagogical textbook apparatus marker" },
   ];
 
   const legalPatterns: Array<{ regex: RegExp; label: string }> = [
-    { regex: /\b(pursuant\s+to|hereinafter|notwithstanding|whereas|sub-section|thereof|hereunder)\b/i, label: "Statutory / legal drafting clause" },
-    { regex: /\b(legal\s+documents?|official\s+textbooks?|strict\s+rules\s+of\s+clarity\s+and\s+grammar)\b/i, label: "Formal legal/curriculum register" },
-  ];
-
-  const eslFormalPatterns: Array<{ regex: RegExp; label: string }> = [
-    { regex: /\bnon-native\s+English\s+speakers?\b|\bhighly\s+formalized\s+educational\s+text\b/i, label: "Formalized ESL / pedagogical register" },
+    { regex: /\b(pursuant\s+to\s+Section|hereinafter\s+referred\s+to\s+as|notwithstanding\s+anything\s+contained\s+in)\b/i, label: "Statutory / legal drafting clause" },
   ];
 
   for (const pat of textbookPatterns) {
@@ -338,15 +411,10 @@ export function detectTextbookAndFormalReferenceProtection(text: string): {
       if (!category) category = "legal";
     }
   }
-  for (const pat of eslFormalPatterns) {
-    if (pat.regex.test(text)) {
-      markers.push(pat.label);
-      if (!category) category = "esl_formal";
-    }
-  }
 
+  // Require at least 2 distinct markers to prevent incidental single-word triggers
   return {
-    formalReferenceProtected: markers.length >= 1,
+    formalReferenceProtected: markers.length >= 2,
     category,
     detectedMarkers: markers,
   };
@@ -755,6 +823,7 @@ export function computeLogOddsFusion(
 
   const minimumLengthVeto = vetoContext.wordCount > 0 && vetoContext.wordCount < 150;
   const eslProtectionVeto = vetoContext.eslPatternsDetected && !vetoContext.hasMetadataAnomaly;
+  const academicProtectionVeto = Boolean(vetoContext.academicResearchProtected) && !vetoContext.hasMetadataAnomaly;
 
   // Covariance decorrelation factor for the 3 collinear token-distribution signals
   // With pairwise correlation rho ≈ 0.62 across 3 signals, effective independent weight scale is 1 / (1 + 2 * 0.62) ≈ 0.446
@@ -800,7 +869,7 @@ export function computeLogOddsFusion(
       weight: 2.0,
       covarianceScale: collinearDecorrelation,
       rawScore: signals.binoScore,
-      suppressed: eslProtectionVeto,
+      suppressed: eslProtectionVeto || academicProtectionVeto,
     },
     {
       id: "burst",
@@ -808,7 +877,7 @@ export function computeLogOddsFusion(
       weight: 1.5,
       covarianceScale: collinearDecorrelation,
       rawScore: signals.burstScore,
-      suppressed: eslProtectionVeto,
+      suppressed: eslProtectionVeto || academicProtectionVeto,
     },
     {
       id: "gltr",
@@ -816,7 +885,7 @@ export function computeLogOddsFusion(
       weight: 1.0,
       covarianceScale: collinearDecorrelation,
       rawScore: signals.gltrScore,
-      suppressed: false,
+      suppressed: academicProtectionVeto,
     },
   ];
 
@@ -850,6 +919,9 @@ export function computeLogOddsFusion(
   // Apply Hard-Veto Overrides in strict precedence order:
   if (minimumLengthVeto) {
     finalAggregateProbability = Math.min(finalAggregateProbability, 0.22);
+  } else if (academicProtectionVeto) {
+    // Authentic scholarly research with citations/methodology is capped at Tier 0 (Human-Consistent)
+    finalAggregateProbability = Math.min(finalAggregateProbability, 0.32);
   } else if (eslProtectionVeto) {
     finalAggregateProbability = Math.min(finalAggregateProbability, 0.58);
   } else if (
@@ -915,6 +987,7 @@ export function computeLogOddsFusion(
     activeVetoes: {
       minimumLengthVeto,
       eslProtectionVeto,
+      academicProtectionVeto,
       metadataAbsentDowngrade,
     },
     signalContributions,
