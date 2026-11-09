@@ -166,8 +166,8 @@ function IntroApp() {
   ];
 
   return (
-    <div className="w-screen h-screen flex items-center justify-center p-6 bg-transparent select-none overflow-hidden">
-      {/* Floating Borderless Transparent Card (Floating directly over macOS desktop) */}
+    <div className="fixed inset-0 w-screen h-screen flex items-center justify-center p-6 bg-black/45 backdrop-blur-[2px] transition-colors duration-500 select-none overflow-hidden">
+      {/* Floating Borderless Transparent Card (Floating over dimmed HazeOver desktop) */}
       <motion.div
         initial={{ opacity: 0, scale: 0.92, y: 20 }}
         animate={

@@ -82,6 +82,19 @@ fn main() {
                     let _ = main_win.show();
                     let _ = main_win.set_focus();
                 }
+            } else {
+                // Size intro window to primary monitor for seamless edge-to-edge HazeOver backdrop
+                if let Some(intro_win) = app.get_webview_window("intro") {
+                    if let Ok(Some(monitor)) = app.primary_monitor() {
+                        let monitor_size = monitor.size();
+                        let scale_factor = monitor.scale_factor();
+                        let logical_width = monitor_size.width as f64 / scale_factor;
+                        let logical_height = monitor_size.height as f64 / scale_factor;
+
+                        let _ = intro_win.set_size(tauri::LogicalSize::new(logical_width, logical_height));
+                        let _ = intro_win.set_position(tauri::LogicalPosition::new(0.0, 0.0));
+                    }
+                }
             }
             Ok(())
         })
