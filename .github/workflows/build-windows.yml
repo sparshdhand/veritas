@@ -43,6 +43,18 @@ jobs:
             echo "Veritas Forensic Offline Weights" > src-tauri/resources/models/README.md
           fi
 
+      - name: Download Offline Neural Model & WASM Assets
+        shell: bash
+        run: |
+          mkdir -p public/models/roberta-detector/onnx public/wasm
+          echo "Downloading RoBERTa ONNX weights & tokenizer..."
+          curl -f -L --retry 5 "https://huggingface.co/onnx-community/roberta-base-openai-detector-ONNX/resolve/main/config.json" -o "public/models/roberta-detector/config.json"
+          curl -f -L --retry 5 "https://huggingface.co/onnx-community/roberta-base-openai-detector-ONNX/resolve/main/tokenizer.json" -o "public/models/roberta-detector/tokenizer.json"
+          curl -f -L --retry 5 "https://huggingface.co/onnx-community/roberta-base-openai-detector-ONNX/resolve/main/tokenizer_config.json" -o "public/models/roberta-detector/tokenizer_config.json"
+          curl -f -L --retry 5 "https://huggingface.co/onnx-community/roberta-base-openai-detector-ONNX/resolve/main/onnx/model_quantized.onnx" -o "public/models/roberta-detector/onnx/model_quantized.onnx"
+          cp node_modules/onnxruntime-web/dist/*.wasm public/wasm/ || true
+          ls -lh public/models/roberta-detector/onnx/
+
       - name: Build Frontend
         run: npm run build
 

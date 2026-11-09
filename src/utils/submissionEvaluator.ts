@@ -24,6 +24,10 @@ import {
   parsePdfContainer,
 } from "./containerForensics";
 import { isDesktopApp } from "./tauriBridge";
+import {
+  getLocalOfflineNeuralClassifier,
+  extractAiProbability,
+} from "./localNeuralClassifier";
 
 function splitIntoLogicalPassages(text: string): string[] {
   // First isolate standalone display math ($$...$$, \[...\]) and LaTeX math/diagram environments
@@ -1036,20 +1040,7 @@ export async function enrichSubmissionWithLiveNeuralClassifier(
       return submission;
     }
 
-    const res = await fetch("/api/forensics/neural-classify", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        documentSummary: `${submission.title} (${submission.stylometrics.wordCount} words, ${submission.report.document_metadata_forensics.author_tool_signature})`,
-        passages: rawPassages,
-      }),
-    });
-
-    if (!res.ok) {
-      return submission;
-    }
-
-    const data = (await res.json()) as {
+    let data: {
       overallNeuralScore?: number;
       crossEntropySignal?: number;
       conformalPValue?: number;
@@ -1057,9 +1048,67 @@ export async function enrichSubmissionWithLiveNeuralClassifier(
       eslOrFormalHumanProtection?: boolean;
       passageScores?: Array<{ index: number; neuralAiProbability: number }>;
       liveNeuralInference?: boolean;
-    };
+    } | null = null;
 
-    if (!data.liveNeuralInference || typeof data.overallNeuralScore !== "number") {
+    // 1. First attempt local offline in-app transformer inference
+    try {
+      const localClassifier = await getLocalOfflineNeuralClassifier();
+      if (localClassifier) {
+        const fullDocSnippet = rawPassages.map((p) => p.text).join("\n\n").slice(0, 2000);
+        const docOutput = await localClassifier(fullDocSnippet, { top_k: 2, truncation: true });
+        const docProb = extractAiProbability(docOutput);
+
+        if (docProb !== null) {
+          const passageScores = await Promise.all(
+            rawPassages.slice(0, 18).map(async (p) => {
+              try {
+                const out = await localClassifier(p.text.slice(0, 1200), { top_k: 2, truncation: true });
+                const prob = extractAiProbability(out);
+                return {
+                  index: p.index,
+                  neuralAiProbability: prob ?? 0.5,
+                };
+              } catch {
+                return { index: p.index, neuralAiProbability: 0.5 };
+              }
+            })
+          );
+
+          data = {
+            overallNeuralScore: docProb,
+            liveNeuralInference: true,
+            passageScores,
+          };
+        }
+      }
+    } catch (localErr) {
+      console.warn("[LocalNeuralInference] Falling back to remote or statistical heuristics:", localErr);
+    }
+
+    // 2. If local offline was not available, try server endpoint (/api/forensics/neural-classify)
+    if (!data) {
+      if (typeof navigator !== "undefined" && !navigator.onLine) {
+        return submission;
+      }
+
+      const res = await fetch("/api/forensics/neural-classify", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          documentSummary: `${submission.title} (${submission.stylometrics.wordCount} words, ${submission.report.document_metadata_forensics.author_tool_signature})`,
+          passages: rawPassages,
+        }),
+      });
+
+      if (!res.ok) {
+        return submission;
+      }
+
+      data = (await res.json()) as typeof data;
+    }
+
+    // If no inference data could be obtained (offline and server unreachable), retain baseline submission
+    if (!data || !data.liveNeuralInference || typeof data.overallNeuralScore !== "number") {
       return submission;
     }
 
