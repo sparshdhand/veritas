@@ -5,10 +5,6 @@ description = "Veritas Forensic - Academic Integrity & AI Detection Workbench"
 authors = ["Veritas Forensic Team"]
 edition = "2021"
 
-[lib]
-name = "veritas_forensic_lib"
-crate-type = ["staticlib", "cdylib", "rlib"]
-
 [build-dependencies]
 tauri-build = { version = "2", features = [] }
 
