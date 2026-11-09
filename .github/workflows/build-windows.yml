@@ -55,16 +55,9 @@ jobs:
           curl -f -L --retry 5 --retry-delay 2 "https://github.com/tauri-apps/nsis-tauri-utils/releases/download/nsis_tauri_utils-v0.5.3/nsis_tauri_utils.dll" -o "$LOCALAPPDATA/tauri/NSIS/Plugins/x86-unicode/nsis_tauri_utils.dll" || true
 
       - name: Build Tauri Desktop Bundle
-        uses: tauri-apps/tauri-action@v0
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        with:
-          args: --bundles nsis,msi
-          tagName: v__VERSION__
-          releaseName: 'Veritas Forensic v__VERSION__'
-          releaseBody: 'Automated Windows build of Veritas Forensic (Tauri v2).'
-          releaseDraft: false
-          prerelease: false
+        shell: bash
+        run: |
+          npm run tauri build -- --bundles nsis,msi
 
       - name: Upload Windows Installers
         uses: actions/upload-artifact@v4
