@@ -1,0 +1,207 @@
+{
+  ".agents/skills/impeccable/scripts/command-metadata.json": {
+    "mtime": 1793955009.842373,
+    "ast_hash": "748b025ad91e8665d2d39f5918d1992a",
+    "semantic_hash": "748b025ad91e8665d2d39f5918d1992a"
+  },
+  ".agents/skills/impeccable/scripts/data/font-index-failures.json": {
+    "mtime": 1793955009.8784869,
+    "ast_hash": "c14048ea4e2b4a062933664822bc0399",
+    "semantic_hash": "c14048ea4e2b4a062933664822bc0399"
+  },
+  ".agents/skills/impeccable/scripts/data/font-index.json": {
+    "mtime": 1793955009.87791,
+    "ast_hash": "4a4426c85ec12df1d9a487a39d656ff4",
+    "semantic_hash": "4a4426c85ec12df1d9a487a39d656ff4"
+  },
+  ".agents/skills/impeccable/scripts/impeccable": {
+    "mtime": 1793955009.8705575,
+    "ast_hash": "e9cf79ef9820250542df0232f6c69237",
+    "semantic_hash": "e9cf79ef9820250542df0232f6c69237"
+  },
+  ".agents/skills/impeccable/scripts/live-browser-dom.js": {
+    "mtime": 1793955009.8797307,
+    "ast_hash": "5727f418039223d9113c0d88cf1be10d",
+    "semantic_hash": "5727f418039223d9113c0d88cf1be10d"
+  },
+  ".agents/skills/impeccable/scripts/live-browser-ignores.js": {
+    "mtime": 1793955009.879127,
+    "ast_hash": "eb8a3d924d40aaebff40b68fffec5ecb",
+    "semantic_hash": "eb8a3d924d40aaebff40b68fffec5ecb"
+  },
+  ".agents/skills/impeccable/scripts/live-browser-session.js": {
+    "mtime": 1793955009.8742552,
+    "ast_hash": "2ebb35b3612e9af6f483b95c5d42141a",
+    "semantic_hash": "2ebb35b3612e9af6f483b95c5d42141a"
+  },
+  ".agents/skills/impeccable/scripts/live-browser.js": {
+    "mtime": 1793955009.8717506,
+    "ast_hash": "9aee8ac14289aaace90df5fb4efbc844",
+    "semantic_hash": "9aee8ac14289aaace90df5fb4efbc844"
+  },
+  ".agents/skills/impeccable/scripts/modern-screenshot.umd.js": {
+    "mtime": 1793955009.8751705,
+    "ast_hash": "4fe5f9e490ab4f107afc707d7eafc819",
+    "semantic_hash": "4fe5f9e490ab4f107afc707d7eafc819"
+  },
+  ".claude/settings.local.json": {
+    "mtime": 1793955009.9133892,
+    "ast_hash": "04e6e69e76861bd8ba92e47b2abc25e8",
+    "semantic_hash": "04e6e69e76861bd8ba92e47b2abc25e8"
+  },
+  ".claude/skills/impeccable/scripts/command-metadata.json": {
+    "mtime": 1793955009.9182837,
+    "ast_hash": "748b025ad91e8665d2d39f5918d1992a",
+    "semantic_hash": "748b025ad91e8665d2d39f5918d1992a"
+  },
+  ".claude/skills/impeccable/scripts/data/font-index-failures.json": {
+    "mtime": 1793955009.9557245,
+    "ast_hash": "c14048ea4e2b4a062933664822bc0399",
+    "semantic_hash": "c14048ea4e2b4a062933664822bc0399"
+  },
+  ".claude/skills/impeccable/scripts/data/font-index.json": {
+    "mtime": 1793955009.9550662,
+    "ast_hash": "4a4426c85ec12df1d9a487a39d656ff4",
+    "semantic_hash": "4a4426c85ec12df1d9a487a39d656ff4"
+  },
+  ".claude/skills/impeccable/scripts/impeccable": {
+    "mtime": 1793955009.9469378,
+    "ast_hash": "e9cf79ef9820250542df0232f6c69237",
+    "semantic_hash": "e9cf79ef9820250542df0232f6c69237"
+  },
+  ".claude/skills/impeccable/scripts/live-browser-dom.js": {
+    "mtime": 1793955009.9569333,
+    "ast_hash": "5727f418039223d9113c0d88cf1be10d",
+    "semantic_hash": "5727f418039223d9113c0d88cf1be10d"
+  },
+  ".claude/skills/impeccable/scripts/live-browser-ignores.js": {
+    "mtime": 1793955009.9563699,
+    "ast_hash": "eb8a3d924d40aaebff40b68fffec5ecb",
+    "semantic_hash": "eb8a3d924d40aaebff40b68fffec5ecb"
+  },
+  ".claude/skills/impeccable/scripts/live-browser-session.js": {
+    "mtime": 1793955009.950812,
+    "ast_hash": "2ebb35b3612e9af6f483b95c5d42141a",
+    "semantic_hash": "2ebb35b3612e9af6f483b95c5d42141a"
+  },
+  ".claude/skills/impeccable/scripts/live-browser.js": {
+    "mtime": 1793955009.948141,
+    "ast_hash": "9aee8ac14289aaace90df5fb4efbc844",
+    "semantic_hash": "9aee8ac14289aaace90df5fb4efbc844"
+  },
+  ".claude/skills/impeccable/scripts/modern-screenshot.umd.js": {
+    "mtime": 1793955009.9516451,
+    "ast_hash": "4fe5f9e490ab4f107afc707d7eafc819",
+    "semantic_hash": "4fe5f9e490ab4f107afc707d7eafc819"
+  },
+  ".codex/hooks.json": {
+    "mtime": 1793955009.9893327,
+    "ast_hash": "48dba42de6ba769377341f46e0981dee",
+    "semantic_hash": "48dba42de6ba769377341f46e0981dee"
+  },
+  ".impeccable/design.json": {
+    "mtime": 1793955009.9998267,
+    "ast_hash": "1ca5a0d4faf3bac5362e550d38cc9679",
+    "semantic_hash": "1ca5a0d4faf3bac5362e550d38cc9679"
+  },
+  ".impeccable/live/config.json": {
+    "mtime": 1793955009.9993436,
+    "ast_hash": "db3f47aa64932b4c922bce752e0e6e0c",
+    "semantic_hash": "db3f47aa64932b4c922bce752e0e6e0c"
+  },
+  "metadata.json": {
+    "mtime": 1793955009.9124148,
+    "ast_hash": "bf2bfbb03e39e61cbb7abfef7f79ff77",
+    "semantic_hash": "bf2bfbb03e39e61cbb7abfef7f79ff77"
+  },
+  "package.json": {
+    "mtime": 1793955009.9950147,
+    "ast_hash": "ca52add6c1fab77db2c5e786f29729ca",
+    "semantic_hash": "ca52add6c1fab77db2c5e786f29729ca"
+  },
+  "server.ts": {
+    "mtime": 1793955009.9981678,
+    "ast_hash": "234184ddea1ef7fd5f9d425e9974ec56",
+    "semantic_hash": "234184ddea1ef7fd5f9d425e9974ec56"
+  },
+  "src/App.tsx": {
+    "mtime": 1793955010.0005887,
+    "ast_hash": "5a73c926fa315ae8758e307c1f86f64d",
+    "semantic_hash": "5a73c926fa315ae8758e307c1f86f64d"
+  },
+  "src/components/HearingDossierModal.tsx": {
+    "mtime": 1793955010.0088809,
+    "ast_hash": "a547bf76b73c8256c354d527249f02ab",
+    "semantic_hash": "a547bf76b73c8256c354d527249f02ab"
+  },
+  "src/components/TopNav.tsx": {
+    "mtime": 1793955010.009489,
+    "ast_hash": "ce678bbe93e17cf07fb5a559f600b9c9",
+    "semantic_hash": "ce678bbe93e17cf07fb5a559f600b9c9"
+  },
+  "src/components/WorkspaceView.tsx": {
+    "mtime": 1793955010.0078843,
+    "ast_hash": "cb2cac92af559a059c9a699891975015",
+    "semantic_hash": "cb2cac92af559a059c9a699891975015"
+  },
+  "src/data/humanCalibrationBaseline.json": {
+    "mtime": 1793955010.010399,
+    "ast_hash": "3be7db0c07eda4b6c40b40178f428b94",
+    "semantic_hash": "3be7db0c07eda4b6c40b40178f428b94"
+  },
+  "src/data/humanCalibrationDistribution.ts": {
+    "mtime": 1793955010.011034,
+    "ast_hash": "5726fadb3c14c336618fc75d2f5f9857",
+    "semantic_hash": "5726fadb3c14c336618fc75d2f5f9857"
+  },
+  "src/main.tsx": {
+    "mtime": 1793955010.0010931,
+    "ast_hash": "3d3e321d0eda932c0d53f6dca341c956",
+    "semantic_hash": "3d3e321d0eda932c0d53f6dca341c956"
+  },
+  "src/types/forensics.ts": {
+    "mtime": 1793955010.0018327,
+    "ast_hash": "c1d09ebed0e83eaa7fc4ac75b3d907af",
+    "semantic_hash": "c1d09ebed0e83eaa7fc4ac75b3d907af"
+  },
+  "src/utils/containerForensics.ts": {
+    "mtime": 1793955010.005343,
+    "ast_hash": "a9f2d785c67e2f6ea9ecebb8a270277d",
+    "semantic_hash": "a9f2d785c67e2f6ea9ecebb8a270277d"
+  },
+  "src/utils/forensicEngine.test.ts": {
+    "mtime": 1793955010.0039706,
+    "ast_hash": "b282593e238b75bd46aad992a4866bd9",
+    "semantic_hash": "b282593e238b75bd46aad992a4866bd9"
+  },
+  "src/utils/forensicEngine.ts": {
+    "mtime": 1793955010.0058315,
+    "ast_hash": "608a674995b47af3ef7ad2329253d276",
+    "semantic_hash": "608a674995b47af3ef7ad2329253d276"
+  },
+  "src/utils/mathRenderer.tsx": {
+    "mtime": 1793955010.0064306,
+    "ast_hash": "795d685381d0f041338a420b2375b6a1",
+    "semantic_hash": "795d685381d0f041338a420b2375b6a1"
+  },
+  "src/utils/statisticalModels.ts": {
+    "mtime": 1793955010.0048594,
+    "ast_hash": "73dd98923d05013541fa59893efbe3f1",
+    "semantic_hash": "73dd98923d05013541fa59893efbe3f1"
+  },
+  "src/utils/submissionEvaluator.ts": {
+    "mtime": 1793955010.0028982,
+    "ast_hash": "2b426e926b1932d1aa6f1868f44d3ae2",
+    "semantic_hash": "2b426e926b1932d1aa6f1868f44d3ae2"
+  },
+  "tsconfig.json": {
+    "mtime": 1793955009.995602,
+    "ast_hash": "c9ce11f97b614219001b418db5fe4190",
+    "semantic_hash": "c9ce11f97b614219001b418db5fe4190"
+  },
+  "vite.config.ts": {
+    "mtime": 1793955009.9973931,
+    "ast_hash": "11fc7aa8d8540a7a96286e2358c9de1b",
+    "semantic_hash": "11fc7aa8d8540a7a96286e2358c9de1b"
+  }
+}

@@ -1,0 +1,13 @@
+{
+  "routes": [
+    {
+      "routePath": "/api/forensics/image-ocr",
+      "mountPath": "/api/forensics",
+      "method": "POST",
+      "module": [
+        "api/forensics/image-ocr.ts:onRequestPost"
+      ]
+    }
+  ],
+  "baseURL": "/"
+}

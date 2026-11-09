@@ -1,0 +1,120 @@
+{
+  "schemaVersion": 2,
+  "generatedAt": "2026-11-05T11:57:30.000Z",
+  "title": "Design System: Veritas Forensic",
+  "extensions": {
+    "colorMeta": {
+      "primary": {
+        "role": "primary",
+        "displayName": "Forensic Obsidian",
+        "canonical": "#0F172A",
+        "tonalRamp": ["#020617", "#0F172A", "#1E293B", "#334155", "#475569", "#64748B", "#94A3B8", "#E2E8F0"]
+      },
+      "accent-sky": {
+        "role": "secondary",
+        "displayName": "Optical Sky",
+        "canonical": "#0284C7",
+        "tonalRamp": ["#082F49", "#0C4A6E", "#075985", "#0369A1", "#0284C7", "#0EA5E9", "#38BDF8", "#E0F2FE"]
+      },
+      "accent-violet": {
+        "role": "secondary",
+        "displayName": "Ingestion Violet",
+        "canonical": "#6D28D9",
+        "tonalRamp": ["#2E1065", "#4C1D95", "#5B21B6", "#6D28D9", "#7C3AED", "#8B5CF6", "#A78BFA", "#EDE9FE"]
+      },
+      "tier-proven": {
+        "role": "tertiary",
+        "displayName": "Tier 3 Crimson",
+        "canonical": "#E11D48",
+        "tonalRamp": ["#4C0519", "#881337", "#9F1239", "#BE123C", "#E11D48", "#F43F5E", "#FB7185", "#FFE4E6"]
+      },
+      "tier-human": {
+        "role": "tertiary",
+        "displayName": "Tier 0 Emerald",
+        "canonical": "#059669",
+        "tonalRamp": ["#022C22", "#064E3B", "#065F46", "#047857", "#059669", "#10B981", "#34D399", "#D1FAE5"]
+      },
+      "neutral-canvas": {
+        "role": "neutral",
+        "displayName": "Laboratory Daylight",
+        "canonical": "#F5F7FB",
+        "tonalRamp": ["#0F172A", "#1E293B", "#334155", "#64748B", "#94A3B8", "#CBD5E1", "#E2E8F0", "#F5F7FB"]
+      }
+    },
+    "typographyMeta": {
+      "display": { "displayName": "Display", "purpose": "Aggregate AI probability readouts and modal titles." },
+      "headline": { "displayName": "Headline", "purpose": "Panel headers and forensic dossier section titles." },
+      "title": { "displayName": "Title", "purpose": "Card headers and navigation tabs." },
+      "body": { "displayName": "Body", "purpose": "Manuscript prose and KaTeX equation containers." },
+      "label": { "displayName": "Telemetry Mono", "purpose": "Tabular numeric metrics, p-values, and tier badges." }
+    },
+    "shadows": [
+      { "name": "shell", "value": "0 28px 64px -16px rgba(15, 23, 42, 0.09)", "purpose": "Outer workbench container elevation." },
+      { "name": "panel", "value": "0 16px 40px -12px rgba(15, 23, 42, 0.06)", "purpose": "Primary split-pane glass panels." },
+      { "name": "card", "value": "0 8px 20px -6px rgba(15, 23, 42, 0.05)", "purpose": "Diagnostic telemetry cards." }
+    ],
+    "motion": [
+      { "name": "ease-out-expo", "value": "cubic-bezier(0.16, 1, 0.3, 1)", "purpose": "Smooth panel and gauge transitions." }
+    ],
+    "breakpoints": [
+      { "name": "md", "value": "768px" },
+      { "name": "lg", "value": "1024px" },
+      { "name": "xl", "value": "1280px" }
+    ]
+  },
+  "components": [
+    {
+      "name": "Active Navigation Pill",
+      "kind": "button",
+      "refersTo": "button-primary",
+      "description": "Active view switcher and dossier trigger pill in the top bar.",
+      "html": "<button class=\"ds-btn-pill-active\">Forensic Workspace</button>",
+      "css": ".ds-btn-pill-active { background: linear-gradient(180deg, rgba(15,23,42,0.94) 0%, rgba(30,41,59,0.90) 100%); color: #ffffff; padding: 6px 14px; border-radius: 9999px; font-family: 'Plus Jakarta Sans', sans-serif; font-size: 11px; font-weight: 600; border: 1.5px solid rgba(255,255,255,0.25); box-shadow: 0 8px 20px -4px rgba(15,23,42,0.18), inset 0 1px 1.5px 0 rgba(255,255,255,0.35); cursor: pointer; transition: transform 0.15s ease, opacity 0.15s ease; } .ds-btn-pill-active:hover { transform: translateY(-1px); }"
+    },
+    {
+      "name": "Forensic Telemetry Card",
+      "kind": "card",
+      "refersTo": "card-forensic",
+      "description": "Refractive liquid-glass card displaying calibrated forensic metrics.",
+      "html": "<div class=\"ds-card-forensic\"><div class=\"ds-card-label\">CONFORMAL P-VALUE</div><div class=\"ds-card-value\">p = 0.014</div></div>",
+      "css": ".ds-card-forensic { background: linear-gradient(180deg, rgba(255,255,255,0.92) 0%, rgba(248,250,252,0.80) 100%); border: 1px solid rgba(255,255,255,0.96); border-radius: 16px; padding: 16px; box-shadow: 0 8px 20px -6px rgba(15,23,42,0.05), inset 0 1px 1.5px 0 rgba(255,255,255,1); font-family: 'Plus Jakarta Sans', sans-serif; } .ds-card-label { font-family: 'JetBrains Mono', monospace; font-size: 10px; font-weight: 600; letter-spacing: 0.08em; color: #64748B; } .ds-card-value { font-family: 'JetBrains Mono', monospace; font-size: 18px; font-weight: 700; color: #0F172A; margin-top: 4px; }"
+    }
+  ],
+  "narrative": {
+    "northStar": "The Optical Forensic Laboratory",
+    "overview": "Veritas Forensic blends clinical laboratory precision with specular liquid-glass optics. Designed for high-stakes academic integrity reviews, the interface pairs high-contrast slate typography and tabular monospace telemetry with translucent, multi-layered refractive panels.",
+    "keyCharacteristics": [
+      "Specular liquid-glass surfaces over a cool daylight laboratory canvas (#F5F7FB).",
+      "Dual-font discipline: Plus Jakarta Sans for UI and manuscript prose paired with JetBrains Mono (tabular-nums) for forensic telemetry.",
+      "Strict four-tier semantic alert colors (Rose, Orange, Amber, Emerald).",
+      "Viewport-locked split-pane workbench where navigation and telemetry remain stationary while the manuscript scrolls independently."
+    ],
+    "rules": [
+      {
+        "name": "The Semantic Tier Exclusivity Rule",
+        "body": "Rose (#E11D48), Orange (#EA580C), Amber (#D97706), and Emerald (#059669) are reserved strictly for evidentiary forensic tiers and protection badges—never use them as decorative backgrounds.",
+        "section": "colors"
+      },
+      {
+        "name": "The Tabular Telemetry Rule",
+        "body": "Every numeric probability, log-odds weight, word count, and p-value must render in JetBrains Mono with font-variant-numeric: tabular-nums so columns never jitter during live sandbox adjustments.",
+        "section": "typography"
+      },
+      {
+        "name": "The Specular Rim Rule",
+        "body": "Every elevated glass panel pairs a soft outer slate shadow with a 1.5px solid rgba(255, 255, 255, 0.95) border and inset 0 1.5px 2px 0 rgba(255, 255, 255, 1) top highlight to preserve physical edge definition against light backgrounds.",
+        "section": "elevation"
+      }
+    ],
+    "dos": [
+      "Do keep the outer shell locked to h-screen overflow-hidden so scrolling inside the manuscript never scrolls the top navigation bar or telemetry sidebar out of view.",
+      "Do render mathematical expressions through KaTeX (MathText) and display the LaTeX Math Guard badge whenever symbolic density is detected.",
+      "Do use JetBrains Mono with tabular-nums for all forensic metrics, p-values, and log-odds weights."
+    ],
+    "donts": [
+      "Don't use dark-mode neon cyberpunk backgrounds; maintain the clinical daylight laboratory aesthetic (#F5F7FB).",
+      "Don't display a Tier 3 (Proven Synthetic) badge when deterministic container proof is absent.",
+      "Don't allow raw LaTeX control sequences or PDF font ligature garbage to render unformatted in the manuscript reader."
+    ]
+  }
+}

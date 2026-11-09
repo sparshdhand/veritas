@@ -1,0 +1,6 @@
+{
+  "name": "Veritas Forensic — Defensible Multi-Modal AI Detection",
+  "description": "Zero-cost client and edge forensic architecture for academic submissions combining statistical text metrics, neural span classifiers, OpenXML/PDF container forensics, C2PA/FFT visual analysis, and ESL-protective log-odds confidence fusion.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
