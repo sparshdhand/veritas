@@ -46,12 +46,20 @@ jobs:
       - name: Build Frontend
         run: npm run build
 
+      - name: Pre-download NSIS dependencies
+        shell: bash
+        run: |
+          mkdir -p "$LOCALAPPDATA/tauri/NSIS"
+          curl -f -L --retry 5 --retry-delay 2 "https://github.com/tauri-apps/binary-releases/releases/download/nsis-3.13/nsis-3.13.zip" -o "$TEMP/nsis.zip"
+          unzip -q -o "$TEMP/nsis.zip" -d "$LOCALAPPDATA/tauri/NSIS"
+          curl -f -L --retry 5 --retry-delay 2 "https://github.com/tauri-apps/nsis-tauri-utils/releases/download/nsis_tauri_utils-v0.5.3/nsis_tauri_utils.dll" -o "$LOCALAPPDATA/tauri/NSIS/Plugins/x86-unicode/nsis_tauri_utils.dll" || true
+
       - name: Build Tauri Desktop Bundle
         uses: tauri-apps/tauri-action@v0
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
-          args: --bundles msi
+          args: --bundles nsis,msi
           tagName: v__VERSION__
           releaseName: 'Veritas Forensic v__VERSION__'
           releaseBody: 'Automated Windows build of Veritas Forensic (Tauri v2).'
