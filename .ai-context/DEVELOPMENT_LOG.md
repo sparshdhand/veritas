@@ -1,5 +1,19 @@
 # Development Log: AI Detection School Project (Veritas Forensic)
 
+## 2026-11-10 04:10 — Release v1.2.0 Packaging: macOS & Windows Installers Ready
+- **Release Version**: `1.2.0` (Major Internal Overhaul).
+- **macOS Build**:
+  - `dist-installers/macos/Veritas.app` (`224.2 MB`)
+  - `dist-installers/macos/Veritas_1.2.0_aarch64.dmg` (`218.7 MB`)
+- **Windows Build**:
+  - Compiled via GitHub Actions Windows runner (`#42699947128`).
+  - Bundled offline neural models (ModernBERT ONNX + RoBERTa ONNX) and WebAssembly runtimes.
+  - `dist-installers/windows/nsis/Veritas_1.2.0_x64-setup.exe` (`218.3 MB`)
+  - `dist-installers/windows/msi/Veritas_1.2.0_x64_en-US.msi` (`217.0 MB`)
+- **Store & Colab Delivery**:
+  - Microsoft Store compliance and privacy disclosures completed (`docs/store/`).
+  - Google Colab collaborative notebook published (`colab/veritas_colab_launcher.ipynb`).
+
 ## 2026-11-10 02:18 — DOCX Forensic Verification & Citation Regex Hardening
 - **Root Cause of DOCX Misclassification (`High-Taste Video Editing Harness Architecture.docx`)**:
   - The document contained code tuples/arrays (e.g. `[0, 1]`, `[3, 2, 2]`) which were matching an overly broad `\[\d+\]` citation regex.
