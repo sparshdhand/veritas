@@ -2,13 +2,7 @@
 
 > **Defensible, multi-modal evidentiary forensic workbench for academic integrity.**
 
-[[https://img.shields.io/badge/release-v1.2.0-0F3B5F?style=flat-square]](https://github.com/)
-[[https://img.shields.io/badge/React-19-61DAFB?style=flat-square&logo=react&logoColor=black]](https://react.dev/)
-[[https://img.shields.io/badge/Tauri-v2-FFC131?style=flat-square&logo=tauri&logoColor=black]](https://tauri.app/)
-[[https://img.shields.io/badge/TypeScript-5-3178C6?style=flat-square&logo=typescript&logoColor=white]](https://www.typescriptlang.org/)
-[[https://img.shields.io/badge/Tailwind_CSS-v4-38B2AC?style=flat-square&logo=tailwind-css&logoColor=white]](https://tailwindcss.com/)
-[[https://img.shields.io/badge/Inference-ONNX_Offline-005CED?style=flat-square]](https://onnxruntime.ai/)
-[[https://img.shields.io/badge/platform-macOS%20%7C%20Windows%20%7C%20Web-4A5568?style=flat-square]](https://github.com/)
+![Uploading Screenshot 2026-11-10 at 12.55.41 PM.png…]()
 
 ---
 
