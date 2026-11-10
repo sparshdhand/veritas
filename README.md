@@ -2,7 +2,8 @@
 
 > **Defensible, multi-modal evidentiary forensic workbench for academic integrity.**
 
-![Uploading Screenshot 2026-11-10 at 12.55.41 PM.png…]()
+
+<img width="1552" height="971" alt="Screenshot 2026-11-10 at 12 55 41 PM" src="https://github.com/user-attachments/assets/47aa1f88-dc7e-4758-bdc6-ee6326d1588d" />
 
 ---
 
@@ -188,6 +189,3 @@ Veritas Forensic is built as an **investigative decision-support aid**, not an a
 
 ---
 
-## License
-
-Distributed under the MIT License. See `LICENSE` for details.
